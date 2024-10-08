@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ChevronDown, Dot, LucideIcon } from "lucide-react";
+import { ChevronDown, Dot, type LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -51,6 +51,7 @@ export function CollapseMenuButton({
 }: CollapseMenuButtonProps) {
   const pathname = usePathname();
   const isSubmenuActive = submenus.some((submenu) =>
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
     submenu.active == undefined ? submenu.href === pathname : submenu.active
   );
   const [isCollapsed, setIsCollapsed] = useState<boolean>(isSubmenuActive);
