@@ -11,7 +11,7 @@ import {
     BadgeDollarSign,
     Coffee,
   LayoutGrid,
-  LucideIcon
+  type LucideIcon
 } from "lucide-react";
 
 type Submenu = {
