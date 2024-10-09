@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import PlaceholderContent from "@/components/demo/placeholder-content";
+
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import {
   Breadcrumb,
@@ -10,6 +10,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from "@/components/ui/breadcrumb";
+import EmployeeContent from "@/components/admin-content/employee-content";
 
 export default function AccountPage() {
   return (
@@ -33,7 +34,7 @@ export default function AccountPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <PlaceholderContent />
+      <EmployeeContent />
     </ContentLayout>
   );
 }
