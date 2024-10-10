@@ -27,6 +27,7 @@ export type Employee = {
 
 export async function fetchEmployees(): Promise<Employee[]> {
   const response = await fetch(`https://relative-druci-danbearpersonalprojects-57a99032.koyeb.app/api/employees`);
+                                https://relative-druci-danbearpersonalprojects-57a99032.koyeb.app/
   if (!response.ok) {
     throw new Error('Network response was not ok');
   }

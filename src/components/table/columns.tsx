@@ -87,8 +87,9 @@ export const columns: ColumnDef<Employee>[] = [
               Copy Employee ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View Employee Details</DropdownMenuItem>
+            <DropdownMenuItem>View Employee</DropdownMenuItem>
             <DropdownMenuItem>Edit Employee</DropdownMenuItem>
+            <DropdownMenuItem>Delete Employee</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
