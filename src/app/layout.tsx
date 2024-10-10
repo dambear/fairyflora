@@ -5,6 +5,7 @@ import "./globals.css";
 
 import { ThemeProvider } from "@/providers/theme-provider";
 
+
 export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.APP_URL
