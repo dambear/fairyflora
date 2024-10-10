@@ -51,7 +51,6 @@ export function CollapseMenuButton({
 }: CollapseMenuButtonProps) {
   const pathname = usePathname();
   const isSubmenuActive = submenus.some((submenu) =>
-    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
     submenu.active == undefined ? submenu.href === pathname : submenu.active
   );
   const [isCollapsed, setIsCollapsed] = useState<boolean>(isSubmenuActive);
