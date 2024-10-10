@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-
+import PlaceholderContent from "@/components/demo/placeholder-content";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import {
   Breadcrumb,
@@ -10,13 +10,15 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from "@/components/ui/breadcrumb";
-import EmployeeContent from "@/components/admin-content/employee/employee-content";
+import NewEmployeeContent from "@/components/admin-content/employee/new-employee-content";
 
-export default function EmployeePage() {
+
+export default function NewPostPage() {
   return (
-    <ContentLayout title="Employee">
+    <ContentLayout title="New Post">
       <Breadcrumb>
         <BreadcrumbList>
+          <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link href="/dashboard">Dashboard</Link>
@@ -24,11 +26,17 @@ export default function EmployeePage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Employee</BreadcrumbPage>
+            <BreadcrumbLink asChild>
+              <Link href="/employee">Employee</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>New</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <EmployeeContent />
+      <NewEmployeeContent />
     </ContentLayout>
   );
 }

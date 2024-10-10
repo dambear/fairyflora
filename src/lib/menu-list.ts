@@ -54,7 +54,17 @@ export function getMenuList(pathname: string): Group[] {
           href: "/employee",
           label: "Employee",
           active: pathname.includes("/employee"),
-          icon: Users
+          icon: Newspaper,
+          submenus: [
+            {
+              href: "/employee",
+              label: "All Employee"
+            },
+            {
+              href: "/employee/new",
+              label: "New Employee"
+            }
+          ]
         },
         {
           href: "/branch",
