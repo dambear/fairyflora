@@ -1,3 +1,4 @@
+import { base_Url } from "./data";
 
 
 export type Branch = {
@@ -26,7 +27,7 @@ export type Employee = {
 
 
 export async function fetchEmployees(): Promise<Employee[]> {
-  const response = await fetch(`https://relative-druci-danbearpersonalprojects-57a99032.koyeb.app/api/employees`);
+  const response = await fetch(base_Url + '/employees');
   if (!response.ok) {
     throw new Error('Network response was not ok');
   }
@@ -36,4 +37,30 @@ export async function fetchEmployees(): Promise<Employee[]> {
   data.sort((a, b) => a.id - b.id);
   
   return data;
+}
+
+
+export async function fetchEmployeeById(id: number): Promise<Employee> {
+  const response = await fetch(base_Url + `/employees/${id}`);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  return await response.json();
+}
+
+export async function createEmployee(employee: Employee): Promise<Employee> {
+  console.log("Creating employee with data:", employee); // Debugging line
+  const response = await fetch(base_Url + '/employees', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(employee),
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Error response from server:', errorText); // Debugging line
+    throw new Error('Network response was not ok');
+  }
+  return await response.json();
 }

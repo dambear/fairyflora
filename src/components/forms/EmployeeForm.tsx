@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { CheckIcon, CaretSortIcon } from "@radix-ui/react-icons";
+import { CheckIcon, CaretSortIcon, CalendarIcon } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
 import {
   Command,
@@ -30,7 +30,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { fetchBranches, Branch } from "@/data/branch-data";
+import { createEmployee } from "@/data/employee-data";
+import { format } from "date-fns";
 
 const formSchema = z.object({
   firstName: z.string().min(1, { message: "First name is required." }),
@@ -49,6 +52,7 @@ export function AddEmployeeForm() {
   const [searchTerm, setSearchTerm] = useState("");
   const [value, setValue] = useState("");
   const [open, setOpen] = useState(false);
+  const [date, setDate] = useState<Date>();
 
   useEffect(() => {
     async function loadBranches() {
@@ -79,20 +83,16 @@ export function AddEmployeeForm() {
 
   const onSubmit = async (data: any) => {
     try {
-      const response = await fetch("/api/employees", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      if (response.ok) {
-        // Handle successful submission
-      } else {
-        console.error("Failed to add employee");
-      }
+      const transformedData = {
+        ...data,
+        branch: { id: data.branchId },
+      };
+      delete transformedData.branchId;
+      const newEmployee = await createEmployee(transformedData);
+      console.log("Employee added successfully:", newEmployee);
+      // Handle successful submission
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Failed to add employee:", error);
     }
   };
 
@@ -182,10 +182,33 @@ export function AddEmployeeForm() {
           control={form.control}
           name="dateHired"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="mt-1.5 flex flex-col space-y-3">
               <FormLabel>Date Hired</FormLabel>
               <FormControl>
-                <Input type="date" placeholder="Date Hired" {...field} />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={open}
+                      className="justify-between overflow-hidden text-ellipsis whitespace-nowrap text-left font-normal text-muted-foreground"
+                    >
+                      {date ? format(date, "PPP") : <span>Pick a date</span>}
+                      <CalendarIcon className="ml-2 h-4 w-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={(selectedDate) => {
+                        setDate(selectedDate);
+                        field.onChange(selectedDate?.toISOString());
+                      }}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -221,7 +244,7 @@ export function AddEmployeeForm() {
           control={form.control}
           name="branchId"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="mt-1.5 flex flex-col space-y-3">
               <FormLabel>Branch</FormLabel>
               <FormControl>
                 <Popover open={open} onOpenChange={setOpen}>
@@ -230,10 +253,10 @@ export function AddEmployeeForm() {
                       variant="outline"
                       role="combobox"
                       aria-expanded={open}
-                      className="w-[200px] justify-between"
+                      className="justify-between overflow-hidden text-ellipsis whitespace-nowrap text-left font-normal text-muted-foreground"
                     >
                       {value ? value : "Select branch..."}
-                      <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      <CaretSortIcon className="ml-2 h-4 w-4 shrink-0" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[200px] p-0">
@@ -283,7 +306,7 @@ export function AddEmployeeForm() {
             </FormItem>
           )}
         />
-        <div className="col-span-4">
+        <div className="col-span-4 mt-4">
           <Button type="submit">Add Employee</Button>
         </div>
       </form>
