@@ -10,7 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { type Employee } from "./data";
+import { type Employee } from "@/data/employee-data";
+import Link from "next/link";
 
 export const columns: ColumnDef<Employee>[] = [
   {
@@ -88,7 +89,9 @@ export const columns: ColumnDef<Employee>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>View Employee</DropdownMenuItem>
-            <DropdownMenuItem>Edit Employee</DropdownMenuItem>
+            <Link href={`/employee/edit/${employee.id}`} passHref>
+              <DropdownMenuItem>Edit Employee</DropdownMenuItem>
+            </Link>
             <DropdownMenuItem>Delete Employee</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

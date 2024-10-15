@@ -1,3 +1,4 @@
+import { base_Url } from "./data";
 
 
 export type Branch = {
@@ -14,7 +15,7 @@ export type Branch = {
 
 
 export async function fetchBranches(): Promise<Branch[]> {
-  const response = await fetch(`https://relative-druci-danbearpersonalprojects-57a99032.koyeb.app/api/branches`);
+  const response = await fetch(base_Url + '/branches');
   if (!response.ok) {
     throw new Error('Network response was not ok');
   }
@@ -24,4 +25,13 @@ export async function fetchBranches(): Promise<Branch[]> {
   data.sort((a, b) => a.id - b.id);
   
   return data;
+}
+
+
+export async function fetchBranchById(id: number): Promise<Branch> {
+  const response = await fetch(base_Url + `/branches/${id}`);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  return await response.json();
 }

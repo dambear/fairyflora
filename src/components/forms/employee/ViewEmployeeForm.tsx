@@ -1,36 +1,25 @@
-"use client";
-
-import * as React from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { fetchBranches, Branch } from "@/data/branch-data";
+import { fetchEmployeeById, updateEmployee } from "@/data/employee-data";
 import {
   Form,
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
+  FormControl,
   FormMessage,
 } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CheckIcon, CaretSortIcon } from "@radix-ui/react-icons";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon, CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { fetchBranches, Branch } from "@/data/branch-data";
 
 const formSchema = z.object({
   firstName: z.string().min(1, { message: "First name is required." }),
@@ -44,23 +33,12 @@ const formSchema = z.object({
   branchId: z.number().min(1, { message: "Branch is required." }),
 });
 
-export function AddEmployeeForm() {
+export function EditEmployeeForm({ employeeId }: { employeeId: number }) {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [value, setValue] = useState("");
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    async function loadBranches() {
-      try {
-        const data = await fetchBranches();
-        setBranches(data);
-      } catch (error) {
-        console.error("Failed to fetch branches:", error);
-      }
-    }
-    loadBranches();
-  }, []);
+  const [date, setDate] = useState<Date>();
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -77,29 +55,54 @@ export function AddEmployeeForm() {
     },
   });
 
+  useEffect(() => {
+    async function loadBranches() {
+      try {
+        const data = await fetchBranches();
+        setBranches(data);
+      } catch (error) {
+        console.error("Failed to fetch branches:", error);
+      }
+    }
+
+    async function loadEmployee() {
+      try {
+        const employee = await fetchEmployeeById(employeeId);
+        form.reset({
+          ...employee,
+          contactNumber: employee.contactNumber.toString(),
+          branchId: employee.branch.id,
+        });
+        setDate(new Date(employee.dateHired));
+        setValue(`${employee.branch.barangay}, ${employee.branch.municipality}, ${employee.branch.province}`);
+      } catch (error) {
+        console.error("Failed to fetch employee:", error);
+      }
+    }
+
+    loadBranches();
+    loadEmployee();
+  }, [employeeId, form]); 
+
   const onSubmit = async (data: any) => {
     try {
-      const response = await fetch("/api/employees", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      if (response.ok) {
-        // Handle successful submission
-      } else {
-        console.error("Failed to add employee");
-      }
+      const transformedData = {
+        ...data,
+        branch: { id: data.branchId },
+      };
+      delete transformedData.branchId;
+      const updatedEmployee = await updateEmployee(employeeId, transformedData);
+      console.log("Employee updated successfully:", updatedEmployee);
+      // Handle successful submission
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Failed to update employee:", error);
     }
   };
 
   const filteredBranches = branches.filter((branch) =>
     `${branch.barangay} ${branch.municipality} ${branch.province}`
       .toLowerCase()
-      .includes(searchTerm.toLowerCase()),
+      .includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -115,7 +118,7 @@ export function AddEmployeeForm() {
             <FormItem>
               <FormLabel>First Name</FormLabel>
               <FormControl>
-                <Input placeholder="First Name" {...field} />
+                <Input placeholder="First Name" {...field} disabled />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -128,7 +131,7 @@ export function AddEmployeeForm() {
             <FormItem>
               <FormLabel>Middle Name</FormLabel>
               <FormControl>
-                <Input placeholder="Middle Name" {...field} />
+                <Input placeholder="Middle Name" {...field} disabled />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -141,7 +144,7 @@ export function AddEmployeeForm() {
             <FormItem>
               <FormLabel>Last Name</FormLabel>
               <FormControl>
-                <Input placeholder="Last Name" {...field} />
+                <Input placeholder="Last Name" {...field} disabled />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -154,7 +157,13 @@ export function AddEmployeeForm() {
             <FormItem>
               <FormLabel>Salary</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="Salary" {...field} />
+                <Input
+                  type="number"
+                  placeholder="Salary"
+                  {...field}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  disabled
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -167,7 +176,7 @@ export function AddEmployeeForm() {
             <FormItem>
               <FormLabel>Contact Number</FormLabel>
               <FormControl>
-                <Input placeholder="Contact Number" {...field} />
+                <Input placeholder="Contact Number" {...field} disabled />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -177,10 +186,34 @@ export function AddEmployeeForm() {
           control={form.control}
           name="dateHired"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="mt-1.5 flex flex-col space-y-3">
               <FormLabel>Date Hired</FormLabel>
               <FormControl>
-                <Input type="date" placeholder="Date Hired" {...field} />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={open}
+                      className="justify-between overflow-hidden text-ellipsis whitespace-nowrap text-left font-normal text-muted-foreground"
+                      disabled
+                    >
+                      {date ? format(date, "PPP") : <span>Pick a date</span>}
+                      <CalendarIcon className="ml-2 h-4 w-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={(selectedDate) => {
+                        setDate(selectedDate);
+                        field.onChange(selectedDate?.toISOString());
+                      }}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -193,7 +226,7 @@ export function AddEmployeeForm() {
             <FormItem>
               <FormLabel>Role</FormLabel>
               <FormControl>
-                <Input placeholder="Role" {...field} />
+                <Input placeholder="Role" {...field} disabled />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -206,7 +239,7 @@ export function AddEmployeeForm() {
             <FormItem>
               <FormLabel>Email Address</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="Email Address" {...field} />
+                <Input type="email" placeholder="Email Address" {...field} disabled />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -216,7 +249,7 @@ export function AddEmployeeForm() {
           control={form.control}
           name="branchId"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="mt-1.5 flex flex-col space-y-3">
               <FormLabel>Branch</FormLabel>
               <FormControl>
                 <Popover open={open} onOpenChange={setOpen}>
@@ -225,10 +258,11 @@ export function AddEmployeeForm() {
                       variant="outline"
                       role="combobox"
                       aria-expanded={open}
-                      className="w-[200px] justify-between"
+                      className="justify-between overflow-hidden text-ellipsis whitespace-nowrap text-left font-normal text-muted-foreground"
+                      disabled
                     >
                       {value ? value : "Select branch..."}
-                      <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      <CaretSortIcon className="ml-2 h-4 w-4 shrink-0" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[200px] p-0">
@@ -240,6 +274,7 @@ export function AddEmployeeForm() {
                           setSearchTerm(search)
                         }
                         className="h-9"
+                        disabled
                       />
                       <CommandList>
                         <CommandEmpty>No branch found.</CommandEmpty>
@@ -248,12 +283,10 @@ export function AddEmployeeForm() {
                             <CommandItem
                               key={branch.id}
                               value={`${branch.barangay} ${branch.municipality} ${branch.province}`}
-                              onSelect={(currentValue) => {
-                                field.onChange(
-                                  currentValue === value ? "" : currentValue,
-                                );
+                              onSelect={() => {
+                                field.onChange(branch.id);
                                 setValue(
-                                  currentValue === value ? "" : currentValue,
+                                  `${branch.barangay}, ${branch.municipality}, ${branch.province}`,
                                 );
                                 setOpen(false);
                               }}
@@ -263,7 +296,7 @@ export function AddEmployeeForm() {
                                 className={cn(
                                   "ml-auto h-4 w-4",
                                   value ===
-                                    `${branch.barangay} ${branch.municipality} ${branch.province}`
+                                    `${branch.barangay}, ${branch.municipality}, ${branch.province}`
                                     ? "opacity-100"
                                     : "opacity-0",
                                 )}
@@ -280,8 +313,8 @@ export function AddEmployeeForm() {
             </FormItem>
           )}
         />
-        <div className="col-span-4">
-          <Button type="submit">Add Employee</Button>
+        <div className="col-span-4 mt-4">
+          <Button type="submit" disabled>Update Employee</Button>
         </div>
       </form>
     </Form>

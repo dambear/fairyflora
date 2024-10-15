@@ -24,9 +24,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { type Employee, fetchEmployees } from "./data";
-import { columns } from "./columns";
+import { type Employee, fetchEmployees } from "@/data/employee-data";
+import { columns } from "./column/employee-collumn";
 import type { SortingState, ColumnFiltersState } from "@tanstack/react-table";
+import { CaretSortIcon } from "@radix-ui/react-icons";
 
 const EmployeeTable: React.FC = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -104,7 +105,8 @@ const EmployeeTable: React.FC = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto ">
-                Columns <span className="ml-2 h-4 w-4" />
+                Columns 
+                <CaretSortIcon className="ml-2 h-4 w-4 shrink-0" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

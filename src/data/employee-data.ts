@@ -64,3 +64,20 @@ export async function createEmployee(employee: Employee): Promise<Employee> {
   }
   return await response.json();
 }
+
+export async function updateEmployee(id: number, employee: Employee): Promise<Employee> {
+  console.log("Updating employee with id:", id, "and data:", employee); // Debugging line
+  const response = await fetch(base_Url + `/employees/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(employee),
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Error response from server:', errorText); // Debugging line
+    throw new Error('Network response was not ok');
+  }
+  return await response.json();
+}

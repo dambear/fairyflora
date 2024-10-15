@@ -1,6 +1,8 @@
-import Link from "next/link";
+"use client";
 
-import PlaceholderContent from "@/components/demo/placeholder-content";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import {
   Breadcrumb,
@@ -10,12 +12,13 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from "@/components/ui/breadcrumb";
-import NewEmployeeContent from "@/components/admin-content/employee/new-employee-content";
+import EditEmployeeContent from "@/components/admin-content/employee/edit-employee-content";
 
+export default function EditEmployeePage() {
+  const { id } = useParams();
 
-export default function NewEmployeePage() {
   return (
-    <ContentLayout title="New Employee">
+    <ContentLayout title="Edit Employee">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbSeparator />
@@ -32,11 +35,11 @@ export default function NewEmployeePage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>New</BreadcrumbPage>
+            <BreadcrumbPage>Edit</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <NewEmployeeContent />
+      {id && <EditEmployeeContent employeeId={parseInt(id as string, 10)} />}
     </ContentLayout>
   );
 }
